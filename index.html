@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoL Tracker - Match History & Statistics</title>
+  <meta name="description" content="Track your League of Legends match history, statistics, and training drills" />
+  <meta name="keywords" content="League of Legends, LoL, Match History, Statistics, KDR, Gaming" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="dark">
+  <div class="app-container">
+    <div class="layout">
+
+      <!-- ═══ SIDEBAR ═══ -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <svg class="icon icon-swords" viewBox="0 0 24 24">
+            <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
+            <path d="M13 19l6-6" />
+            <path d="M16 16l4 4" />
+            <path d="M19 21l2-2" />
+            <path d="M14.5 6.5L18 3h3v3l-3.5 3.5" />
+            <path d="M5 14l4-4" />
+            <path d="M7 17l-4 4" />
+            <path d="M3 19l2 2" />
+          </svg>
+          <h1>LoL Tracker</h1>
+        </div>
+
+        <!-- Add Summoner Button -->
+        <button class="btn btn-primary btn-full" id="btn-add-summoner">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Aggiungi Evocatore
+        </button>
+
+        <!-- Summoner List -->
+        <div class="sidebar-section">
+          <label class="sidebar-label">Evocatori Tracciati</label>
+          <div class="summoner-list" id="summoner-list">
+            <!-- Summoners will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Settings Button -->
+        <div class="sidebar-footer">
+          <div class="sidebar-footer-buttons">
+            <button class="btn btn-outline btn-full" id="btn-export">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Esporta JSON
+            </button>
+            <button class="btn btn-outline btn-full" id="btn-import">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              Importa JSON
+            </button>
+            <input type="file" id="import-file-input" accept=".json" style="display:none;" />
+            <button class="btn btn-outline btn-full" id="btn-settings">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path
+                  d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              Impostazioni KDR
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ═══ MAIN CONTENT ═══ -->
+      <main class="main-content" id="main-content">
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state" style="display:none;">
+          <svg class="icon icon-lg" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          <h2>Nessun Evocatore Selezionato</h2>
+          <p>Aggiungi un evocatore dalla barra laterale per iniziare</p>
+          <button class="btn btn-primary" id="btn-add-summoner-empty">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Aggiungi Evocatore
+          </button>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard" id="dashboard" style="display:none;">
+
+          <!-- Filters Bar -->
+          <div class="card filter-bar">
+            <div class="card-content filter-content">
+              <div class="filter-group">
+                <label class="filter-label">Lane:</label>
+                <div class="select-wrapper">
+                  <select id="filter-lane" class="select">
+                    <option value="ALL">Tutte</option>
+                    <option value="TOP">Top</option>
+                    <option value="JUNGLE">Jungle</option>
+                    <option value="MID">Mid</option>
+                    <option value="ADC">ADC</option>
+                    <option value="SUPPORT">Support</option>
+                  </select>
+                </div>
+              </div>
+              <div class="filter-group">
+                <label class="filter-label">Campioni:</label>
+                <div class="select-wrapper">
+                  <select id="filter-champion" class="select">
+                    <option value="ALL">Tutti</option>
+                  </select>
+                </div>
+              </div>
+              <div class="filter-spacer"></div>
+              <button class="btn btn-primary" id="btn-sync">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Sincronizza
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="tabs">
+            <div class="tabs-list">
+              <button class="tab-trigger active" data-tab="matches">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Partite
+              </button>
+              <button class="tab-trigger" data-tab="stats">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <path d="M3 3v18h18" />
+                  <path d="M18 17V9" />
+                  <path d="M13 17V5" />
+                  <path d="M8 17v-3" />
+                </svg>
+                Statistiche
+              </button>
+              <button class="tab-trigger" data-tab="champions">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                  <path d="M4 22h16" />
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                </svg>
+                Per Campione
+              </button>
+              <button class="tab-trigger" data-tab="lanes">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="6" />
+                  <circle cx="12" cy="12" r="2" />
+                </svg>
+                Per Lane
+              </button>
+              <button class="tab-trigger" data-tab="progress">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+                Progresso
+              </button>
+              <button class="tab-trigger" data-tab="champions-tracker">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                  <path d="M4 22h16" />
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                </svg>
+                Campioni
+              </button>
+              <button class="tab-trigger" data-tab="drills">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <path d="m6.5 6.5 11 11" />
+                  <path d="m21 21-1-1" />
+                  <path d="m3 3 1 1" />
+                  <path d="m18 22 4-4" />
+                  <path d="m2 6 4-4" />
+                  <path d="m3 10 7-7" />
+                  <path d="m14 21 7-7" />
+                </svg>
+                Drill
+              </button>
+            </div>
+
+            <!-- Tab: Matches -->
+            <div class="tab-content active" id="tab-matches">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Storico Partite</h3>
+                  <p class="card-description" id="matches-count">0 partite trovate</p>
+                </div>
+                <div class="card-content">
+                  <div class="loading-skeletons" id="matches-loading" style="display:none;">
+                    <div class="skeleton skeleton-row"></div>
+                    <div class="skeleton skeleton-row"></div>
+                    <div class="skeleton skeleton-row"></div>
+                    <div class="skeleton skeleton-row"></div>
+                    <div class="skeleton skeleton-row"></div>
+                  </div>
+                  <div class="empty-tab" id="matches-empty" style="display:none;">
+                    <svg class="icon icon-lg" viewBox="0 0 24 24">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <p>Nessuna partita trovata</p>
+                    <p class="text-sm">Sincronizza per recuperare le partite</p>
+                  </div>
+                  <div class="scroll-area" id="matches-table-wrapper" style="display:none;">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Risultato</th>
+                          <th>Campione</th>
+                          <th>Lane</th>
+                          <th class="text-center">K/D/A</th>
+                          <th class="text-center">CS</th>
+                          <th class="text-center">Gold</th>
+                          <th class="text-center">Durata</th>
+                          <th class="text-center">KDR</th>
+                          <th class="text-center">CS/min</th>
+                          <th class="text-center">G/min</th>
+                        </tr>
+                      </thead>
+                      <tbody id="matches-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Stats -->
+            <div class="tab-content" id="tab-stats">
+              <div class="stats-container" id="stats-container">
+                <!-- Overview Cards -->
+                <div class="stats-grid">
+                  <div class="card stat-card">
+                    <div class="card-content stat-card-content">
+                      <div class="stat-header">
+                        <div class="stat-icon stat-icon-primary">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                            <path d="M4 22h16" />
+                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="stat-label">Win Rate</p>
+                          <p class="stat-value" id="stat-winrate">0%</p>
+                        </div>
+                      </div>
+                      <div class="progress-bar">
+                        <div class="progress-fill" id="stat-winrate-bar" style="width:0%"></div>
+                      </div>
+                      <p class="stat-detail" id="stat-wl">0W / 0L</p>
+                    </div>
+                  </div>
+                  <div class="card stat-card">
+                    <div class="card-content stat-card-content">
+                      <div class="stat-header">
+                        <div class="stat-icon stat-icon-orange">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                            <polyline points="16 7 22 7 22 13" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="stat-label">KDR Medio</p>
+                          <p class="stat-value" id="stat-kdr">0.00</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card stat-card">
+                    <div class="card-content stat-card-content">
+                      <div class="stat-header">
+                        <div class="stat-icon stat-icon-blue">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <circle cx="8" cy="8" r="6" />
+                            <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+                            <path d="M7 6h1v4" />
+                            <path d="m16.71 13.88.7.71-2.82 2.82" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="stat-label">CS/min</p>
+                          <p class="stat-value" id="stat-csmin">0.00</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card stat-card">
+                    <div class="card-content stat-card-content">
+                      <div class="stat-header">
+                        <div class="stat-icon stat-icon-yellow">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="stat-label">Durata Media</p>
+                          <p class="stat-value" id="stat-duration">0 min</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- KDA Stats -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">Media KDA</h3>
+                  </div>
+                  <div class="card-content">
+                    <div class="kda-grid">
+                      <div class="kda-item">
+                        <p class="kda-value text-green" id="stat-avg-kills">0.0</p>
+                        <p class="kda-label">Kills</p>
+                      </div>
+                      <div class="kda-item">
+                        <p class="kda-value text-red" id="stat-avg-deaths">0.0</p>
+                        <p class="kda-label">Deaths</p>
+                      </div>
+                      <div class="kda-item">
+                        <p class="kda-value text-blue" id="stat-avg-assists">0.0</p>
+                        <p class="kda-label">Assists</p>
+                      </div>
+                      <div class="kda-item">
+                        <p class="kda-value" id="stat-kda-ratio">0.00:1</p>
+                        <p class="kda-label">KDA Ratio</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-grid">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">Win Rate (Ultimi 30 giorni)</h3>
+                    </div>
+                    <div class="card-content">
+                      <canvas id="chart-winrate" height="260"></canvas>
+                      <div class="chart-empty" id="chart-winrate-empty" style="display:none;">Nessun dato disponibile
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">Distribuzione KDR</h3>
+                    </div>
+                    <div class="card-content">
+                      <canvas id="chart-kdr" height="260"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Champions -->
+            <div class="tab-content" id="tab-champions">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Statistiche per Campione</h3>
+                  <p class="card-description">Prestazioni medie con ogni campione</p>
+                </div>
+                <div class="card-content">
+                  <div class="empty-tab" id="champions-empty" style="display:none;">
+                    Nessuna statistica disponibile
+                  </div>
+                  <div class="scroll-area" id="champions-table-wrapper" style="display:none;">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th class="sortable" data-sort="championName">
+                            <span>Campione</span>
+                            <svg class="icon sort-icon" viewBox="0 0 24 24">
+                              <path d="m21 16-4 4-4-4" />
+                              <path d="M17 20V4" />
+                              <path d="m3 8 4-4 4 4" />
+                              <path d="M7 4v16" />
+                            </svg>
+                          </th>
+                          <th class="sortable text-center" data-sort="games">
+                            <span>Partite</span>
+                            <svg class="icon sort-icon" viewBox="0 0 24 24">
+                              <path d="m21 16-4 4-4-4" />
+                              <path d="M17 20V4" />
+                              <path d="m3 8 4-4 4 4" />
+                              <path d="M7 4v16" />
+                            </svg>
+                          </th>
+                          <th class="sortable text-center" data-sort="winRate">
+                            <span>Win Rate</span>
+                            <svg class="icon sort-icon" viewBox="0 0 24 24">
+                              <path d="m21 16-4 4-4-4" />
+                              <path d="M17 20V4" />
+                              <path d="m3 8 4-4 4 4" />
+                              <path d="M7 4v16" />
+                            </svg>
+                          </th>
+                          <th class="sortable text-center" data-sort="avgKills">
+                            <span>K/D/A</span>
+                            <svg class="icon sort-icon" viewBox="0 0 24 24">
+                              <path d="m21 16-4 4-4-4" />
+                              <path d="M17 20V4" />
+                              <path d="m3 8 4-4 4 4" />
+                              <path d="M7 4v16" />
+                            </svg>
+                          </th>
+                          <th class="sortable text-center" data-sort="avgCS">
+                            <span>CS</span>
+                            <svg class="icon sort-icon" viewBox="0 0 24 24">
+                              <path d="m21 16-4 4-4-4" />
+                              <path d="M17 20V4" />
+                              <path d="m3 8 4-4 4 4" />
+                              <path d="M7 4v16" />
+                            </svg>
+                          </th>
+                          <th class="sortable text-center" data-sort="avgCSPerMin">
+                            <span>CS/min</span>
+                            <svg class="icon sort-icon" viewBox="0 0 24 24">
+                              <path d="m21 16-4 4-4-4" />
+                              <path d="M17 20V4" />
+                              <path d="m3 8 4-4 4 4" />
+                              <path d="M7 4v16" />
+                            </svg>
+                          </th>
+                          <th class="sortable text-center" data-sort="avgKDR">
+                            <span>KDR</span>
+                            <svg class="icon sort-icon" viewBox="0 0 24 24">
+                              <path d="m21 16-4 4-4-4" />
+                              <path d="M17 20V4" />
+                              <path d="m3 8 4-4 4 4" />
+                              <path d="M7 4v16" />
+                            </svg>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody id="champions-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Lanes -->
+            <div class="tab-content" id="tab-lanes">
+              <div class="lanes-grid" id="lanes-grid">
+                <!-- Lane cards rendered here -->
+              </div>
+            </div>
+
+            <!-- Tab: Drills -->
+            <div class="tab-content" id="tab-drills">
+              <div class="card">
+                <div class="card-header card-header-row">
+                  <div>
+                    <h3 class="card-title">Drill - Allenamento</h3>
+                    <p class="card-description">Traccia i tuoi allenamenti e progressi</p>
+                  </div>
+                  <button class="btn btn-primary" id="btn-add-drill">
+                    <svg class="icon" viewBox="0 0 24 24">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Nuovo Drill
+                  </button>
+                </div>
+                <div class="card-content">
+                  <div class="empty-tab" id="drills-empty" style="display:none;">
+                    <svg class="icon icon-lg" viewBox="0 0 24 24">
+                      <path d="m6.5 6.5 11 11" />
+                      <path d="m21 21-1-1" />
+                      <path d="m3 3 1 1" />
+                      <path d="m18 22 4-4" />
+                      <path d="m2 6 4-4" />
+                      <path d="m3 10 7-7" />
+                      <path d="m14 21 7-7" />
+                    </svg>
+                    <p>Nessun drill registrato</p>
+                    <p class="text-sm">Aggiungi una sessione di allenamento</p>
+                  </div>
+                  <div class="scroll-area" id="drills-table-wrapper" style="display:none;">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Campione</th>
+                          <th class="text-center">CS</th>
+                          <th class="text-center">Minuti</th>
+                          <th class="text-center">CS/min</th>
+                          <th>Focus</th>
+                          <th>Modalità</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="drills-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Progress -->
+            <div class="tab-content" id="tab-progress">
+              <div class="progress-container">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">Progresso Training</h3>
+                    <p class="card-description">Monitora l'avanzamento complessivo del training</p>
+                  </div>
+                  <div class="card-content">
+                    <div class="progress-stats-grid">
+                      <div class="progress-stat-item">
+                        <p class="progress-stat-value text-green" id="progress-completion">0%</p>
+                        <p class="progress-stat-label">Completion</p>
+                      </div>
+                      <div class="progress-stat-item">
+                        <p class="progress-stat-value" id="progress-done">0</p>
+                        <p class="progress-stat-label">Done</p>
+                      </div>
+                      <div class="progress-stat-item">
+                        <p class="progress-stat-value text-muted" id="progress-missing">0</p>
+                        <p class="progress-stat-label">Missing</p>
+                      </div>
+                      <div class="progress-stat-item">
+                        <p class="progress-stat-value" id="progress-available">0</p>
+                        <p class="progress-stat-label">Champion Available</p>
+                      </div>
+                    </div>
+                    <div class="progress-bar-large" style="margin-top:1.5rem;">
+                      <div class="progress-fill-large" id="progress-bar-fill" style="width:0%"></div>
+                    </div>
+                    <p class="progress-formula" id="progress-formula"
+                      style="margin-top:1rem;text-align:center;color:var(--muted-foreground);font-size:0.875rem;">
+                      Done / (Done + Missing) = 0 / 0 = 0%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Champions Tracker -->
+            <div class="tab-content" id="tab-champions-tracker">
+              <div class="card">
+                <div class="card-header card-header-row">
+                  <div>
+                    <h3 class="card-title">Registro Campioni</h3>
+                    <p class="card-description">Tutti i campioni disponibili nel client</p>
+                  </div>
+                  <div class="header-actions">
+                    <button class="btn btn-outline" id="btn-sync-champions">
+                      <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                        <path d="M21 3v5h-5" />
+                      </svg>
+                      Sincronizza da Data Dragon
+                    </button>
+                  </div>
+                </div>
+                <div class="card-content">
+                  <div class="champions-filter-bar">
+                    <div class="filter-group">
+                      <label class="filter-label">Filtra per Ruolo:</label>
+                      <div class="select-wrapper">
+                        <select id="filter-champion-role" class="select">
+                          <option value="ALL">Tutti</option>
+                          <option value="TOP">Top</option>
+                          <option value="JUNGLE">Jungle</option>
+                          <option value="MID">Mid</option>
+                          <option value="ADC">ADC</option>
+                          <option value="SUPPORT">Support</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="filter-group">
+                      <label class="filter-label">Stato:</label>
+                      <div class="select-wrapper">
+                        <select id="filter-champion-status" class="select">
+                          <option value="ALL">Tutti</option>
+                          <option value="TRACKED">Tracciati ✔</option>
+                          <option value="UNTRACKED">Non Tracciati</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="empty-tab" id="champions-tracker-empty" style="display:none;">
+                    <svg class="icon icon-lg" viewBox="0 0 24 24">
+                      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                      <path d="M4 22h16" />
+                      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                    </svg>
+                    <p>Nessun campione trovato</p>
+                    <p class="text-sm">Sincronizza i campioni da Data Dragon</p>
+                  </div>
+                  <div class="scroll-area" id="champions-tracker-wrapper" style="display:none;">
+                    <div class="champions-grid" id="champions-grid">
+                      <!-- Champion cards rendered here -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /tabs -->
+        </div><!-- /dashboard -->
+      </main>
+    </div>
+  </div>
+
+  <!-- ═══ DIALOG: Add Summoner ═══ -->
+  <div class="dialog-overlay" id="dialog-add-summoner" style="display:none;">
+    <div class="dialog">
+      <div class="dialog-header">
+        <h3 class="dialog-title">Aggiungi Evocatore</h3>
+        <p class="dialog-description">Inserisci il nome e il tag dell'evocatore da tracciare</p>
+      </div>
+      <div class="dialog-body">
+        <div class="form-group">
+          <label class="form-label" for="input-summoner-name">Nome Evocatore</label>
+          <input class="input" id="input-summoner-name" type="text" placeholder="es. Faker" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-summoner-tag">Tag</label>
+          <input class="input" id="input-summoner-tag" type="text" placeholder="es. KR1" />
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-outline" id="btn-cancel-add-summoner">Annulla</button>
+        <button class="btn btn-primary" id="btn-confirm-add-summoner">Aggiungi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DIALOG: Delete Summoner ═══ -->
+  <div class="dialog-overlay" id="dialog-delete-summoner" style="display:none;">
+    <div class="dialog">
+      <div class="dialog-header">
+        <h3 class="dialog-title">Conferma Eliminazione</h3>
+        <p class="dialog-description" id="delete-summoner-text">Sei sicuro di voler eliminare questo evocatore? Tutte le
+          partite associate verranno eliminate.</p>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-outline" id="btn-cancel-delete">Annulla</button>
+        <button class="btn btn-destructive" id="btn-confirm-delete">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DIALOG: Settings ═══ -->
+  <div class="dialog-overlay" id="dialog-settings" style="display:none;">
+    <div class="dialog dialog-lg">
+      <div class="dialog-header">
+        <h3 class="dialog-title">Impostazioni KDR per Lane</h3>
+        <p class="dialog-description">Configura i moltiplicatori per il calcolo del KDR per ogni lane</p>
+      </div>
+      <div class="dialog-body dialog-body-scroll" id="settings-body">
+        <!-- Settings cards rendered by JS -->
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-outline" id="btn-cancel-settings">Annulla</button>
+        <button class="btn btn-primary" id="btn-save-settings">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DIALOG: Sync ═══ -->
+  <div class="dialog-overlay" id="dialog-sync" style="display:none;">
+    <div class="dialog">
+      <div class="dialog-header">
+        <h3 class="dialog-title">Sincronizza Partite</h3>
+        <p class="dialog-description">Scegli come sincronizzare le partite</p>
+      </div>
+      <div class="dialog-body">
+        <div class="sync-option">
+          <svg class="icon icon-lg text-muted" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+          <div class="sync-input-group">
+            <label class="form-label">Giorni da sincronizzare</label>
+            <input class="input" id="input-sync-days" type="number" value="30" />
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer dialog-footer-col">
+        <button class="btn btn-primary btn-full" id="btn-sync-days">
+          <svg class="icon" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+          <span id="sync-days-label">Sincronizza ultimi 30 giorni</span>
+        </button>
+        <button class="btn btn-outline btn-full" id="btn-sync-incremental">
+          <svg class="icon icon-spin-target" viewBox="0 0 24 24">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+          </svg>
+          Sincronizza dall'ultima partita
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DIALOG: Add Drill ═══ -->
+  <div class="dialog-overlay" id="dialog-add-drill" style="display:none;">
+    <div class="dialog">
+      <div class="dialog-header">
+        <h3 class="dialog-title">Nuovo Drill</h3>
+        <p class="dialog-description">Registra la tua sessione di allenamento</p>
+      </div>
+      <div class="dialog-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">CS Totali</label>
+            <input class="input" id="drill-cs" type="number" placeholder="es. 100" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Durata (minuti)</label>
+            <input class="input" id="drill-minute" type="number" value="10" placeholder="es. 10" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Modalità</label>
+            <div class="select-wrapper">
+              <select id="drill-mode" class="select">
+                <option value="Practice Tool">Practice Tool</option>
+                <option value="Custom Game">Custom Game</option>
+                <option value="Co-op vs AI">Co-op vs AI</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Campione</label>
+            <input class="input" id="drill-champion" type="text" placeholder="es. Yasuo" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Focus</label>
+          <input class="input" id="drill-focus" type="text" placeholder="es. CSing, Trading, Wave Management" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Rune</label>
+            <input class="input" id="drill-runes" type="text" placeholder="es. Conqueror" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rune Shard</label>
+            <input class="input" id="drill-runeshard" type="text" placeholder="es. Attack Speed" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Note</label>
+          <input class="input" id="drill-notes" type="text" placeholder="Note aggiuntive..." />
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-outline" id="btn-cancel-drill">Annulla</button>
+        <button class="btn btn-primary" id="btn-save-drill">Salva Drill</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST CONTAINER ═══ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
